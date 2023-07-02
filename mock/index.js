@@ -112,18 +112,28 @@ const roles = {
 };
 // 用户登录
 Mock.mock('/login', 'post', option => {
-  console.log('JSON.parse(option.body)',JSON.parse(option.body));
-  
   const { username, password } = JSON.parse(option.body)
   const user = users.find(item => {
     return item.username === username && item.password === password
   })
-  return user
+  if (user) {
+    return {data:user,msg: "登录成功!",status: 200}
+  } else {
+    return {
+      msg: "登录失败!",status: 400
+    }
+  }
 })
-
 // 用户权限信息
 Mock.mock('/roles', 'post', option => {
-  return roles[option.body]
+  console.log('option',option);
+  if (roles[option.body].length > 0) {
+    return {data:roles[option.body],msg:"获取用户权限信息成功!",status:200}
+  } else {
+    return {msg:"获取用户权限信息失败!",status:400}
+  }
+  
+  
 })
 
 

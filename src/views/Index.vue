@@ -20,7 +20,6 @@
             text-color="#fff"
             active-text-color="#409EFF"
             unique-opened
-            :collapse="isCollapse"
             :collapse-transition="false"
             router
             :default-active="activePath"
@@ -77,43 +76,33 @@
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
-import { computed, reactive, ref,toRefs } from 'vue'
+import { ref} from 'vue'
   import { storeToRefs } from 'pinia'
 let route = useRoute();
 let router = useRouter();
-// console.log('route',route);
-// console.log('router',router);
 import {useRightList} from '@/stores/rightList';
-const RightListStore = useRightList()
-// const { rightList } = storeToRefs(RightListStore)
 import {useUsername} from '@/stores/username';
-const UsernameStore = useUsername()
-const { username } = storeToRefs(UsernameStore)
-console.log("username",username);
-
-const isCollapse =ref(false)
- // 点击按钮，切换菜单的折叠与展开
-// const toggleCollapse  = () => {
-//       isCollapse.value = !isCollapse.value
-// }
-
+const { username } = storeToRefs(useUsername())
 // 被激活的链接地址
-const activePath1 = ref('') 
+const activePath = ref('') 
  // 保存链接的激活状态
- const  saveNavState = (activePath) => {
-    window.sessionStorage.setItem('activePath', activePath)
-    activePath1.value = activePath
+ const  saveNavState = (activePath1) => {
+    window.localStorage.setItem('activePath', activePath1)
+    activePath.value = activePath1
  }
 
+ activePath.value = window.localStorage.getItem('activePath');
 // 左侧菜单数据
 const menulist = ref([]); 
 // 初始化menulist菜单栏的数据
 // this.menulist = this.rightList
-// 将有子选项的和没子选项的筛选一下 有子选项的赋值给menulist 
-for (var i = 0, j = 0; i < RightListStore.rightList.length; i++) {
+//有子选项的赋值给menulist 
+console.log('useRightList().rightList++++++++++++=',useRightList().rightList);
+
+for (var i = 0, j = 0; i < useRightList().rightList.length; i++) {
   // console.log(this.rightList[i].children.length)
-  if (RightListStore.rightList[i].children.length !== 0) {
-    menulist.value[j] = RightListStore.rightList[i];
+  if (useRightList().rightList[i].children.length !== 0) {
+    menulist.value[j] = useRightList().rightList[i];
     j = j + 1;
   } 
 }
@@ -125,8 +114,8 @@ const handleClose = (key, keyPath) => {
 }
 // 用户退出
  const logout = () => {
-      sessionStorage.clear();    
-      // 删除vuex中的数据 让当前页面刷新  
+      localStorage.clear() 
+      // 删除pinia中的数据 让当前页面刷新  
       router.push('/login');
       window.location.reload();
 }

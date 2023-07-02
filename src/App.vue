@@ -1,7 +1,6 @@
 <template>
     <router-view></router-view>
 </template>
-
 <script setup>
 import { initDynamicRoutes } from '@/router'
  // 解决页面刷新动态路由丢失问题 

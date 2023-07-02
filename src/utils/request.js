@@ -13,26 +13,32 @@ const request = axios.create({
 })
 request.interceptors.request.use((req) => {
     if (req.url !== 'login') {
-        req.headers.Authorization = sessionStorage.getItem('token');
+        req.headers.Authorization = localStorage.getItem('token');
         const action = actionMapping[req.method];
-        console.log('router',router);
         const currentRight = router.currentRoute.meta;
         if (currentRight && currentRight.indexOf(action) === -1) {
-            alert('没有权限');
-            return Promise.reject(new Error('没有权限'));
+            ElMessage({
+                showClose: true,
+                message: '您没有权限！',
+                type: "error",
+              });
+            return Promise.reject(new Error('您没有权限！'));
         }
     }
     return req;
 });
 request.interceptors.response.use((res) => {
-    console.log('res+++++++',res);
-    
     if (res.data.status === 401) {
+        ElMessage({
+            showClose: true,
+            message: '身份信息失效！',
+            type: "error",
+          });
         router.push('/login')
-        sessionStorage.clear()
+        localStorage.clear()
         window.location.reload()
-      }
-      return res
-    return res;
+    }
+    return res
+    
 });
 export default request

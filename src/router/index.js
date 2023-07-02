@@ -1,6 +1,5 @@
-import { createRouter, createWebHistory,createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory ,createWebHashHistory} from 'vue-router'
 import {useRightList} from '../stores/rightList';
-import { storeToRefs } from 'pinia';
 // 动态路由
 const userRule = { path: '/users', component:()=> import('../views/user/User.vue') };
 const roleRule = { path: '/roles', component: ()=>import('../views/role/Roles.vue') };
@@ -56,13 +55,12 @@ const routes =  [
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes
-  
 })
 router.beforeEach((to, from, next) => {
   if (to.path === '/login') {
     next();
   } else {
-    const token = sessionStorage.getItem('token');
+    const token = localStorage.getItem('token');
     if (!token) {
       next('/login');
     } else {
@@ -70,39 +68,22 @@ router.beforeEach((to, from, next) => {
     }
   }
 });
+// 解决页面刷新动态路由丢失问题 
 export function initDynamicRoutes() {
   const currentRoutes = router.options.routes;
-  const RightListStore = useRightList()
-// console.log('RightListStore',RightListStore);
-
-  // const { rightList } = storeToRefs(RightListStore)
-  RightListStore.rightList.forEach(item => { 
+  useRightList().rightList.forEach(item => { 
     console.log('item.children+++++++++++++++++++++++++++++++',item.children);
-    // 子路由的话就进入二级权限遍历
     item.children.forEach(item => {
-      console.log('二级权限遍历item++++++++++++='.item);
-      
-      // item 二级权限
-      // console.log(item, 'item-2')
       const temp = ruleMapping[item.path]
       console.log('temp',temp);
-      
       // 路由规则中添加元数据meta
       console.log('item.rights++++++++++++++++++++++++++=',item.rights);
-      
       temp.meta = item.rights
       currentRoutes[2].children.push(temp)
-      // router.addRoute(temp)
     })
   })
-  
-  // router.addRoutes(currentRoutes)
-  console.log("currentRoutes+++++++++++++++++++++",currentRoutes)
   currentRoutes.forEach((item)=>{
     router.addRoute(item)
   })
-  
-  // console.log();
-  
 };
 export default router
